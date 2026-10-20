@@ -9,7 +9,8 @@ recomputing what would come out the same. Stems are stored as float32,
 exactly as the separator produced them: float16 or FLAC would quantise the
 values and that WOULD change downstream transcriptions.
 
-Layout under CHARTGEN_CACHE_DIR (default %APPDATA%/chartgen/cache):
+Layout under CHARTGEN_CACHE_DIR (default %APPDATA%/chartgen/cache on Windows,
+~/Library/Application Support/chartgen/cache on macOS):
     stems/<key>.npz            raw separator outputs, one mono float32 per stem
     transcriptions/<key>.json  [(start, end, pitch, amplitude), ...]
 
@@ -19,6 +20,7 @@ default 6) with least-recently-used eviction; CHARTGEN_STEM_CACHE=0 disables it.
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -26,11 +28,22 @@ import numpy as np
 _AUDIO_KEYS: dict[tuple, str] = {}
 
 
+def app_data_dir() -> Path:
+    """Per-OS base for chartgen's app data (settings, cache): %APPDATA% on
+    Windows, ~/Library/Application Support on macOS, XDG_DATA_HOME elsewhere.
+    """
+    if sys.platform == "win32":
+        return Path(os.environ.get("APPDATA", Path.home())) / "chartgen"
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "chartgen"
+    return Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "chartgen"
+
+
 def cache_dir() -> Path:
     override = os.environ.get("CHARTGEN_CACHE_DIR")
     if override:
         return Path(override)
-    return Path(os.environ.get("APPDATA", Path.home())) / "chartgen" / "cache"
+    return app_data_dir() / "cache"
 
 
 def enabled() -> bool:

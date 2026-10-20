@@ -62,9 +62,32 @@ Installer flags: `install.bat -Cpu` forces the CPU build, `install.bat
 -CudaTag cu128` if your driver prefers a newer CUDA build (the default is
 cu126).
 
+## Install (Mac)
+
+1. Download the latest release zip from the
+   [Releases page](https://github.com/ErnestSarna/chartgen/releases) (or
+   clone the repo) and unzip it anywhere.
+2. **Double-click `install.command`.** The first time, macOS Gatekeeper will
+   warn that it's from an unidentified developer — right-click (Control-click)
+   it, choose *Open*, and confirm; that's a one-time step. It finds (or tells
+   you how to install) Python, creates a venv and installs every dependency,
+   then runs the self-checks. Expect several minutes and roughly 3 GB of
+   downloads.
+3. **Double-click `chartgen.command`.**
+
+The first songs you chart download the models automatically — about 2.5 GB
+in total: the stem separator (0.7 GB), the lyric aligner (1.2 GB) and the
+speech recogniser (0.5 GB, 0.15 GB CPU-only). After that everything is local.
+
+**Requirements:** macOS with Python 3.10–3.14 and tkinter, e.g.
+`brew install python-tk@3.13`, or a python.org installer (which bundles
+tkinter already). There's no GPU acceleration path on Mac yet — chartgen's
+models run on CPU, so a 4-minute song takes roughly as long as the Windows
+CPU-only case (~20 minutes); Apple Silicon's MPS GPU isn't used.
+
 ## Using it
 
-**Desktop app** (`chartgen.bat`): paste a link or browse for files, point
+**Desktop app** (`chartgen.bat` on Windows, `chartgen.command` on Mac): paste a link or browse for files, point
 *Save to* at your Clone Hero songs folder once (it's remembered), hit
 *Generate chart*. Progress and the finished chart's stats show in the window;
 *Open song folder* takes you straight to the result. Then rescan songs in
@@ -78,7 +101,8 @@ and taps on or off. Everything defaults to on.
 **Command line**, same pipeline:
 
 ```
-python -m chartgen "https://www.youtube.com/watch?v=..." -o "C:\Clone Hero\Songs"
+python -m chartgen "https://www.youtube.com/watch?v=..." -o "C:\Clone Hero\Songs"   # Windows
+python -m chartgen "https://www.youtube.com/watch?v=..." -o ~/Clone\ Hero/Songs     # Mac
 python -m chartgen song.mp3 other.flac "https://youtu.be/..." -o out
 python -m chartgen --help
 ```
@@ -86,16 +110,16 @@ python -m chartgen --help
 Artist and title come from the video title or the file's tags. Override them
 for a single song with `--artist` and `--name`.
 
-**Web UI** (`chartgen-web.bat`): a page where any device can paste links or
-upload files, watch its own queue, and get each finished song back as a zip —
-downloaded to that device automatically. Put it behind a free Cloudflare
-Tunnel + Access login and it works from anywhere (see
-[docs/remote-access.md](docs/remote-access.md)): people you list as owners
-get songs saved to the PC's library too; anyone else is a guest whose song
-is charted, handed over, and deleted from the PC. Without Access in front it
-has **no login**, so on a LAN or Tailscale (`chartgen-web.bat --host
-0.0.0.0`) treat it as a shared queue, and never port-forward it to the open
-internet.
+**Web UI** (`chartgen-web.bat` on Windows, `chartgen-web.command` on Mac): a
+page where any device can paste links or upload files, watch its own queue,
+and get each finished song back as a zip — downloaded to that device
+automatically. Put it behind a free Cloudflare Tunnel + Access login and it
+works from anywhere (see [docs/remote-access.md](docs/remote-access.md)):
+people you list as owners get songs saved to the PC's library too; anyone
+else is a guest whose song is charted, handed over, and deleted from the PC.
+Without Access in front it has **no login**, so on a LAN or Tailscale
+(`--host 0.0.0.0`) treat it as a shared queue, and never port-forward it to
+the open internet.
 
 ## Output
 
@@ -124,8 +148,9 @@ from a human chart in the song list.
 - Model weights download once on first use (BS-RoFormer from the UVR public
   model mirror, faster-whisper from Hugging Face, the forced aligner from
   PyTorch's CDN). Stems and transcriptions are cached under
-  `%APPDATA%\chartgen\cache` (up to 6 GB, oldest evicted; `CHARTGEN_CACHE_DIR`
-  and `CHARTGEN_STEM_CACHE_GB` override).
+  `%APPDATA%\chartgen\cache` on Windows or
+  `~/Library/Application Support/chartgen/cache` on Mac (up to 6 GB, oldest
+  evicted; `CHARTGEN_CACHE_DIR` and `CHARTGEN_STEM_CACHE_GB` override).
 
 ## Licensing
 

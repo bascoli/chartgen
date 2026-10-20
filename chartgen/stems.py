@@ -212,7 +212,8 @@ def _separate_sw_cli(y, progress) -> dict | None:
             (tmp / "in").mkdir()
             sf.write(str(tmp / "in" / "song.wav"), y.T, SR)
             progress("      separating stems (BS-RoFormer SW, subprocess)")
-            exe = Path(sys.executable).parent / "bs-roformer-infer.exe"
+            bin_name = "bs-roformer-infer.exe" if sys.platform == "win32" else "bs-roformer-infer"
+            exe = Path(sys.executable).parent / bin_name
             run = subprocess.run(
                 [str(exe) if exe.is_file() else "bs-roformer-infer",
                  "--input_folder", str(tmp / "in"),
