@@ -22,8 +22,9 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from . import pipeline
+from .cache import app_data_dir
 
-SETTINGS = Path(os.environ.get("APPDATA", Path.home())) / "chartgen" / "settings.json"
+SETTINGS = app_data_dir() / "settings.json"
 GRIDS = {"16th notes (default)": 4, "8th notes (sparser)": 2, "Triplet 8ths": 3}
 # Transcribing vocals invents words over instrumental outros - Whisper falls
 # back on the YouTube captions it was trained on, and a real chart ended with
